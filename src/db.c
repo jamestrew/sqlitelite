@@ -3,14 +3,16 @@
 #include <stdlib.h>
 
 #include "input_handler.h"
+#include "tables.h"
 
 int main() {
   InputBuffer *inputBuffer = newInputBuffer();
+  Table *table = newTable();
+
   while (true) {
     printPrompt();
     readInput(inputBuffer);
 
-    // TODO: kinda want to wrap this all in an input handler function
     if (inputBuffer->buffer[0] == '.') {
       switch (doMetaCommand(inputBuffer)) {
       case (META_COMMAND_SUCCES):
@@ -23,13 +25,15 @@ int main() {
       Statement statement;
       switch (prepareStatement(inputBuffer, &statement)) {
       case (PREPARE_SUCCESS):
-        executeStatement(&statement);
+        executeStatement(&statement, table);
         break;
       case (PREPARE_UNRECOGNIZED):
         printf("Unrecognized command '%s'.\n", inputBuffer->buffer);
+        continue;
+      case (PREPARE_SYNTAX_ERROR):
+        puts("Syntax error: missing arguments");
         continue;
       }
     }
   }
 }
-

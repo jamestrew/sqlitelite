@@ -1,8 +1,10 @@
-#ifndef INPUT_HANDLER
-#define INPUT_HANDLER
+#ifndef JT_INPUT_HANDLER
+#define JT_INPUT_HANDLER
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "tables.h"
 
 typedef struct {
   char *buffer;
@@ -15,11 +17,17 @@ typedef enum {
   META_COMMAND_UNRECOGNIZED
 } MetaCommandResult;
 
-typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED } PrepareResult;
+typedef enum {
+  PREPARE_SUCCESS,
+  PREPARE_UNRECOGNIZED,
+  PREPARE_SYNTAX_ERROR
+} PrepareResult;
+
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct {
   StatementType type;
+  Row insertRow;
 } Statement;
 
 InputBuffer *newInputBuffer();
@@ -29,6 +37,11 @@ void closeInputBuffer(InputBuffer *const inputBuffer);
 MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer);
 PrepareResult prepareStatement(InputBuffer *const inputBuffer,
                                Statement *statement);
-void executeStatement(Statement *const statement);
+void executeStatement(Statement *const statement, Table *const table);
+
+ExecuteResult executeInsert(Statement *statement, Table *const table);
+ExecuteResult executeSelect(Statement *statement, Table *const table);
+
+void printRow(const Row *const row);
 
 #endif
