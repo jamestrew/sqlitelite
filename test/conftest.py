@@ -1,7 +1,8 @@
 import subprocess
+import pytest
 
 
-def pytest_configure():
-    print("CLEAN AND BUILD")
+@pytest.fixture(autouse=True)
+def build_and_run():
     subprocess.run(["make", "clean"])
     subprocess.run(["make", "db"])
