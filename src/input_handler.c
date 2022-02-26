@@ -74,7 +74,7 @@ void executeStatement(Statement *const statement, Table *const table) {
 
   switch (result) {
   case (EXECUTE_SUCCESS):
-    puts(".foo");
+    puts("Executed.");
     break;
   case (EXECUTE_TABLE_FULL):
     puts("Error: Table full.");
