@@ -1,4 +1,4 @@
-.PHONY: run
+.PHONY: all
 all: db
 	./db
 
@@ -7,6 +7,10 @@ db: src/db.c src/input_handler.c src/tables.c
 
 %.o: %.c
 	gcc -c $< -o $@
+
+.PHONY: test
+test:
+	pipenv run pytest
 
 .PHONY: clean
 clean:
