@@ -43,17 +43,30 @@ MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer) {
   }
 }
 
-PrepareResult prepareStatement(InputBuffer *const inputBuffer,
-                               Statement *statement) {
+PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement) {
+  statement->type = STATEMENT_INSERT;
+
+  char *keyword = strtok(inputBuffer->buffer, " ");
+  char *id_str = strtok(NULL, " ");
+  char *username = strtok(NULL, " ");
+  char *email = strtok(NULL, " ");
+
+  if (strlen(username) > COLUMN_USERNAME_SIZE) {
+    return PREPARE_STRING_TOO_LONG;
+  }
+  if (strlen(username) > COLUMN_USERNAME_SIZE) {
+    return PREPARE_STRING_TOO_LONG;
+  }
+
+  statement->insertRow.id = atoi(id_str);
+  strcpy(statement->insertRow.username, username);
+  strcpy(statement->insertRow.email, email);
+  return PREPARE_SUCCESS;
+}
+
+PrepareResult prepareStatement(InputBuffer *inputBuffer, Statement *statement) {
   if (strncmp(inputBuffer->buffer, "insert", 6) == 0) {
-    statement->type = STATEMENT_INSERT;
-    int argc = sscanf(inputBuffer->buffer, "insert %d %s %s",
-                      &(statement->insertRow.id), statement->insertRow.username,
-                      statement->insertRow.email);
-    if (argc < 3) {
-      return PREPARE_SYNTAX_ERROR;
-    }
-    return PREPARE_SUCCESS;
+    return prepare_insert(inputBuffer, statement);
   } else if (strncmp(inputBuffer->buffer, "select", 6) == 0) {
     statement->type = STATEMENT_SELECT;
     return PREPARE_SUCCESS;
@@ -89,7 +102,6 @@ ExecuteResult executeInsert(Statement *statement, Table *const table) {
 
   Row *rowInsert = &(statement->insertRow);
   serializeRow(rowInsert, rowSlot(table, table->numRows++));
-  // HACK: this ++ sketch?
   return EXECUTE_SUCCESS;
 }
 

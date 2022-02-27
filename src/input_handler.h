@@ -20,7 +20,8 @@ typedef enum {
 typedef enum {
   PREPARE_SUCCESS,
   PREPARE_UNRECOGNIZED,
-  PREPARE_SYNTAX_ERROR
+  PREPARE_SYNTAX_ERROR,
+  PREPARE_STRING_TOO_LONG
 } PrepareResult;
 
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
@@ -35,8 +36,8 @@ void printPrompt();
 void readInput(InputBuffer *const inputBuffer);
 void closeInputBuffer(InputBuffer *const inputBuffer);
 MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer);
-PrepareResult prepareStatement(InputBuffer *const inputBuffer,
-                               Statement *statement);
+PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement);
+PrepareResult prepareStatement(InputBuffer *inputBuffer, Statement *statement);
 void executeStatement(Statement *const statement, Table *const table);
 
 ExecuteResult executeInsert(Statement *statement, Table *const table);

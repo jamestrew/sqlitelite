@@ -33,6 +33,9 @@ int main() {
       case (PREPARE_SYNTAX_ERROR):
         puts("Syntax error: missing arguments");
         continue;
+      case (PREPARE_STRING_TOO_LONG):
+        puts("Statement strings too long");
+        continue;
       }
     }
   }

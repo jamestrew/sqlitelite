@@ -21,3 +21,20 @@ def test_table_full_error():
         cmds.append("insert 1 jt jt@gmail.com")
     result = cli.run_cmds(cmds)
     assert result.pop() == "db > Error: Table full."
+
+
+def test_max_length_string_fields():
+    long_username = "a" * 32
+    long_email = "a" * 255
+    result = cli.run_cmds(
+        [
+            f"insert 1 {long_username} {long_email}",
+            "select",
+            ".exit",
+        ]
+    )
+    assert result == [
+        "db > Executed.",
+        f"db > \t1\t{long_username}\t{long_email}",
+        "Executed.",
+    ]
