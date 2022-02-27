@@ -35,8 +35,9 @@ void closeInputBuffer(InputBuffer *const inputBuffer) {
   free(inputBuffer);
 }
 
-MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer) {
+MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer, Table *table) {
   if (strcmp(inputBuffer->buffer, ".exit") == 0) {
+    dbClose(table);
     exit(EXIT_SUCCESS);
   } else {
     return META_COMMAND_UNRECOGNIZED;
