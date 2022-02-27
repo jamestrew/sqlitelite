@@ -1,6 +1,11 @@
 from testing import cli
 
 
+def test_empty_select():
+    result = cli.run_cmds(["select"])
+    assert result == ["db > Executed."]
+
+
 def test_insert_and_select_basic():
     result = cli.run_cmds(["insert 1 jt jt@gmail.com", "select"])
     assert result == [
@@ -38,3 +43,19 @@ def test_max_length_string_fields():
         f"db > \t1\t{long_username}\t{long_email}",
         "Executed.",
     ]
+
+
+def test_negative_id():
+    result = cli.run_cmds(["insert -1 jt jt@gmail.com", "select"])
+    assert result == [
+        "db > ID must be a positive integer.",
+        "db > Executed.",
+    ]
+
+def test_non_int_id():
+    result = cli.run_cmds(["insert foo jt jt@gmail.com", "select"])
+    assert result == [
+        "db > ID must be a positive integer.",
+        "db > Executed.",
+    ]
+

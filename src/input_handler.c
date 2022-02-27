@@ -51,6 +51,9 @@ PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement) {
   char *username = strtok(NULL, " ");
   char *email = strtok(NULL, " ");
 
+  if (atoi(id_str) <= 0) {
+    return PREPARE_INVALID_ID;
+  }
   if (strlen(username) > COLUMN_USERNAME_SIZE) {
     return PREPARE_STRING_TOO_LONG;
   }

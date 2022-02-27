@@ -36,6 +36,9 @@ int main() {
       case (PREPARE_STRING_TOO_LONG):
         puts("Statement strings too long");
         continue;
+      case (PREPARE_INVALID_ID):
+        puts("ID must be a positive integer.");
+        continue;
       }
     }
   }
