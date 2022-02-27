@@ -5,16 +5,22 @@
 #include "input_handler.h"
 #include "tables.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    puts("Must supply a database filename.");
+    exit(EXIT_FAILURE);
+  }
+
+  char *filename = argv[1];
   InputBuffer *inputBuffer = newInputBuffer();
-  Table *table = newTable();
+  Table *table = dbOpen(filename);
 
   while (true) {
     printPrompt();
     readInput(inputBuffer);
 
     if (inputBuffer->buffer[0] == '.') {
-      switch (doMetaCommand(inputBuffer)) {
+      switch (doMetaCommand(inputBuffer, table)) {
       case (META_COMMAND_SUCCES):
         continue;
       case (META_COMMAND_UNRECOGNIZED):

@@ -36,7 +36,7 @@ InputBuffer *newInputBuffer();
 void printPrompt();
 void readInput(InputBuffer *const inputBuffer);
 void closeInputBuffer(InputBuffer *const inputBuffer);
-MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer);
+MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer, Table *table);
 PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement);
 PrepareResult prepareStatement(InputBuffer *inputBuffer, Statement *statement);
 void executeStatement(Statement *const statement, Table *const table);

@@ -2,10 +2,10 @@
 #define JT_TABLES
 
 #include <stdint.h>
+#include "pager.h"
 
 #define SIZE_OF_ATTR(struct, attr) sizeof(((struct *)0)->attr)
 
-#define TABLE_MAX_PAGES 100
 #define COLUMN_USERNAME_SIZE 32
 #define COLUMN_EMAIL_SIZE 255
 
@@ -35,20 +35,20 @@ extern const uint32_t USERNAME_OFFSET;
 extern const uint32_t EMAIL_OFFSET;
 extern const uint32_t ROW_SIZE;
 
-extern const uint32_t PAGE_SIZE;
 extern const uint32_t ROWS_PER_PAGE;
 extern const uint32_t TABLE_MAX_ROWS;
 
 typedef struct {
   uint32_t numRows;
-  void *pages[TABLE_MAX_PAGES];
+  Pager *pager;
 } Table;
 
 void serializeRow(Row *source, void *destination);
 void deserializeRow(void *source, Row *destination);
 void *rowSlot(Table *table, uint32_t rowNum);
 
-Table *newTable();
+Table *dbOpen(const char *filename);
+void dbClose(Table *table);
 void freeTable(Table *table);
 
 #endif

@@ -1,7 +1,10 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "pager.h"
 #include "tables.h"
 
 const uint32_t ID_SIZE = SIZE_OF_ATTR(Row, id);
@@ -30,29 +33,67 @@ void deserializeRow(void *source, Row *destination) {
 
 void *rowSlot(Table *table, uint32_t rowNum) {
   uint32_t pageNum = rowNum / ROWS_PER_PAGE;
-  void *page = table->pages[pageNum];
+  void *page = getPage(table->pager, pageNum);
   if (page == NULL) {
-    page = table->pages[pageNum] = malloc(PAGE_SIZE);
+    page = table->pager->pages[pageNum] = malloc(PAGE_SIZE);
   }
   uint32_t rowOffset = rowNum % ROWS_PER_PAGE;
   uint32_t byteOffet = rowOffset * ROW_SIZE;
   return page + byteOffet;
 }
 
-Table *newTable() {
+Table *dbOpen(const char *filename) {
+  Pager *pager = pagerOpen(filename);
   Table *table = malloc(sizeof(Table));
+
   if (table != NULL) {
-    table->numRows = 0;
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; ++i) {
-      table->pages[i] = NULL;
-    }
+    table->numRows = pager->fileLength / ROW_SIZE;
+    table->pager = pager;
   }
   return table;
 }
 
+void dbClose(Table *table) {
+  Pager *pager = table->pager;
+  uint32_t numFullPages = table->numRows / ROWS_PER_PAGE;
+
+  for (uint32_t i = 0; i < numFullPages; ++i) {
+    if (pager->pages[i] == NULL) {
+      continue;
+    }
+    pagerFlush(pager, i, PAGE_SIZE);
+    free(pager->pages[i]);
+    pager->pages[i] = NULL;
+  }
+
+  uint32_t numAdditionalRows = table->numRows % ROWS_PER_PAGE;
+  if (numAdditionalRows > 0) {
+    if (pager->pages[numFullPages] != NULL) {
+      pagerFlush(pager, numFullPages, numAdditionalRows * ROW_SIZE);
+      free(pager->pages[numFullPages]);
+      pager->pages[numFullPages] = NULL;
+    }
+  }
+
+  if (close(pager->fileDescriptor) == -1) {
+    puts("Error closing db file.");
+    exit(EXIT_FAILURE);
+  }
+
+  for (uint32_t i = 0; i < TABLE_MAX_PAGES; ++i) {
+    void *page = pager->pages[i];
+    if (page) {
+      free(page);
+      pager->pages[i] = NULL;
+    }
+  }
+  free(pager);
+  free(table);
+}
+
 void freeTable(Table *table) {
   for (uint32_t i = 0; i < TABLE_MAX_PAGES; ++i) {
-    free(table->pages[i]);
+    free(table->pager->pages[i]);
   }
   free(table);
 }

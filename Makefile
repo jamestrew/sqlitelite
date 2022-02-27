@@ -1,8 +1,8 @@
 .PHONY: all
 all: db
-	./db
+	./db mydb.db
 
-db: src/db.c src/input_handler.c src/tables.c
+db: src/db.c src/input_handler.c src/tables.c src/pager.c
 	gcc -o $@ $^
 
 %.o: %.c

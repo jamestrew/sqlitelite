@@ -52,6 +52,7 @@ def test_negative_id():
         "db > Executed.",
     ]
 
+
 def test_non_int_id():
     result = cli.run_cmds(["insert foo jt jt@gmail.com", "select"])
     assert result == [
@@ -59,3 +60,12 @@ def test_non_int_id():
         "db > Executed.",
     ]
 
+
+def test_data_persistence():
+    cli.run_cmds(["insert 1 jt jt@gmail.com", ".exit"])
+    result = cli.run_cmds(["select", ".exit"])
+
+    assert result == [
+        "db > \t1\tjt\tjt@gmail.com",
+        "Executed.",
+    ]
