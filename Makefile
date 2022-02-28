@@ -15,3 +15,7 @@ test:
 .PHONY: clean
 clean:
 	rm -f db
+
+.PHONY: wipe
+wipe:
+	rm -f mydb.db

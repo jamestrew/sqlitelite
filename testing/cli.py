@@ -10,10 +10,9 @@ def execute_cmd(db: subprocess.Popen, cmd: str):
         print(cmd, file=db.stdin)
 
 
-
 def run_cmds(cmds: list[str]) -> list[str]:
     db = subprocess.Popen(
-        ["./db"],
+        ["./db", "mydb.db"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
