@@ -31,17 +31,6 @@ void deserializeRow(void *source, Row *destination) {
   memcpy(&(destination->email), source + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
-void *rowSlot(Table *table, uint32_t rowNum) {
-  uint32_t pageNum = rowNum / ROWS_PER_PAGE;
-  void *page = getPage(table->pager, pageNum);
-  if (page == NULL) {
-    page = table->pager->pages[pageNum] = malloc(PAGE_SIZE);
-  }
-  uint32_t rowOffset = rowNum % ROWS_PER_PAGE;
-  uint32_t byteOffet = rowOffset * ROW_SIZE;
-  return page + byteOffet;
-}
-
 Table *dbOpen(const char *filename) {
   Pager *pager = pagerOpen(filename);
   Table *table = malloc(sizeof(Table));

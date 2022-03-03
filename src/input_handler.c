@@ -5,6 +5,7 @@
 
 #include "input_handler.h"
 #include "tables.h"
+#include "cursor.h"
 
 void readInput(InputBuffer *const inputBuffer) {
   ssize_t bytesRead =
@@ -105,16 +106,22 @@ ExecuteResult executeInsert(Statement *statement, Table *const table) {
   }
 
   Row *rowInsert = &(statement->insertRow);
-  serializeRow(rowInsert, rowSlot(table, table->numRows++));
+  Cursor *cursor = tableEnd(table);
+  serializeRow(rowInsert, cursorValue(cursor));
+  table->numRows++;
+  free(cursor);
   return EXECUTE_SUCCESS;
 }
 
 ExecuteResult executeSelect(Statement *statement, Table *const table) {
   Row row;
-  for (uint32_t i = 0; i < table->numRows; ++i) {
-    deserializeRow(rowSlot(table, i), &row);
+  Cursor *cursor = tableStart(table);
+  while (!cursor->endOfTable) {
+    deserializeRow(cursorValue(cursor), &row);
+    cursorAdvance(cursor);
     printRow(&row);
   }
+  free(cursor);
   return EXECUTE_SUCCESS;
 }
 

@@ -2,7 +2,7 @@
 all: db
 	./db mydb.db
 
-db: src/db.c src/input_handler.c src/tables.c src/pager.c
+db: src/db.c src/input_handler.c src/tables.c src/pager.c src/cursor.c
 	gcc -o $@ $^
 
 %.o: %.c
