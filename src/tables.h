@@ -45,7 +45,6 @@ typedef struct {
 
 void serializeRow(Row *source, void *destination);
 void deserializeRow(void *source, Row *destination);
-void *rowSlot(Table *table, uint32_t rowNum);
 
 Table *dbOpen(const char *filename);
 void dbClose(Table *table);
