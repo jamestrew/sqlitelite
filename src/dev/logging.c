@@ -1,3 +1,4 @@
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,11 +90,6 @@ void critical(Logger *logger, char *const format, ...) {
   printf("%s", "\033[0m");
   va_end(args);
 }
-
-/*
-  TODO:
-  1. change the functions so it can take as many args as needed like printf
-*/
 
 #ifdef LOGGING_TESTING
 // run with `gcc srv/dev/logging.c -o logging -D LOGGING_TESTING`
