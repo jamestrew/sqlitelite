@@ -29,11 +29,10 @@ void getDateTime(char *format, char *dtStr);
 // void writeLog(char *msg, FILE logFile);
 void generateMsg(char *msg);
 
-// void printPrompt();
-void debug(char *const msg, Logger *logger);
-void info(char *const msg, Logger *logger);
-void warn(char *const msg, Logger *logger);
-void error(char *const msg, Logger *logger);
-void critical(char *const msg, Logger *logger);
+void debug(Logger *logger, char *const format, ...);
+// void info(Logger *logger, char *const format, ...);
+// void warn(Logger *logger, char *const format, ...);
+// void error(Logger *logger, char *const format, ...);
+void critical(Logger *logger, char *const format, ...);
 
 #endif

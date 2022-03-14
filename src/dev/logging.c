@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,69 +52,58 @@ void generateMsg(char *msg) {
   // use to refactor code below
 }
 
-void debug(char *const msg, Logger *logger) {
-  if (logger->level > 10) {
-    return;
-  }
-  char logMsg[MSG_SIZE];
-  getDateTime(logger->dtFormat, logMsg);
-  strcat(logMsg, "[DEBUG] ");
-  strcat(logMsg, msg);
-  fprintf(logger->logFile, "%s\n", logMsg);
-}
-
-void info(char *const msg, Logger *logger) {
+void debug(Logger *logger, char *const format, ...) {
   if (logger->level > 20) {
     return;
   }
-  char logMsg[MSG_SIZE];
-  getDateTime(logger->dtFormat, logMsg);
-  strcat(logMsg, "[INFO] ");
-  strcat(logMsg, msg);
-  fprintf(logger->logFile, "%s\n", logMsg);
+  char logformat[MSG_SIZE];
+  getDateTime(logger->dtFormat, logformat);
+  strcat(logformat, "[DEBUG] ");
+
+  va_list args;
+  va_start(args, format);
+  strcat(logformat, format);
+  strcat(logformat, "\n");
+  vfprintf(stdout, logformat, args);
+  va_end(args);
 }
 
-void warn(char *const msg, Logger *logger) {
-  if (logger->level > 30) {
-    return;
-  }
-  char logMsg[MSG_SIZE];
-  getDateTime(logger->dtFormat, logMsg);
-  strcat(logMsg, "[WARN] ");
-  strcat(logMsg, msg);
-  fprintf(logger->logFile, "%s\n", logMsg);
-}
 
-void error(char *const msg, Logger *logger) {
-  if (logger->level > 40) {
+void critical(Logger *logger, char *const format, ...) {
+  if (logger->level > 20) {
     return;
   }
-  char logMsg[MSG_SIZE];
-  getDateTime(logger->dtFormat, logMsg);
-  strcat(logMsg, "[ERROR] ");
-  strcat(logMsg, msg);
-  fprintf(logger->logFile, "%s\n", logMsg);
+  char logformat[MSG_SIZE];
+  getDateTime(logger->dtFormat, logformat);
+  strcat(logformat, "[CRIT] ");
+
+  va_list args;
+  va_start(args, format);
+  strcat(logformat, format);
+  strcat(logformat, "\n");
+  vfprintf(stdout, logformat, args);
 
   // printPrompt();
   printf("%s", "\033[0;31m");
-  puts(msg);
+  vfprintf(stdout, format, args);
   printf("%s", "\033[0m");
+  va_end(args);
 }
 
-void critical(char *const msg, Logger *logger) {
-  if (logger->level > 50) {
-    return;
-  }
-  char logMsg[MSG_SIZE];
-  getDateTime(logger->dtFormat, logMsg);
-  strcat(logMsg, "[CRIT] ");
-  strcat(logMsg, msg);
-  fprintf(logger->logFile, "%s\n", logMsg);
+/*
+  TODO:
+  1. change the functions so it can take as many args as needed like printf
+*/
 
-  // printPrompt();
-  printf("%s", "\033[0;31m");
-  puts(msg);
-  printf("%s", "\033[0m");
+#ifdef LOGGING_TESTING
+// run with `gcc srv/dev/logging.c -o logging -D LOGGING_TESTING`
+int main() {
+  puts("LOGGIN_TESTING");
+  Logger *logger = getLogger(DEBUG);
+  initLogSession(logger);
+  debug(logger, "testing out debug");
+  debug(logger, "coolest number %d", 420);
+  debug(logger, "some random string %s", "foobarbaz");
+  killLogSession(logger);
 }
-
-// void printPrompt() { printf("%s", "db > "); }
+#endif
