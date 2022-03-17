@@ -26,8 +26,7 @@ void initLogSession(Logger *logger);
 void killLogSession(Logger *logger);
 
 void getDateTime(char *format, char *dtStr);
-// void writeLog(char *msg, FILE logFile);
-void generateMsg(char *msg);
+void printLog(char *msg);
 
 void debug(Logger *logger, char *const format, ...);
 // void info(Logger *logger, char *const format, ...);
