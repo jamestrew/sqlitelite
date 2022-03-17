@@ -44,13 +44,9 @@ void getDateTime(char *format, char *dtStr) {
   struct tm *info = localtime(&rawtime);
 
   // TODO: handle different formats
-  sprintf(dtStr, "[%02d/%02d/%d %02d:%02d:%02d] ", (info->tm_mon + 1),
+  sprintf(dtStr, "[%02d/%02d/%d %02d:%02d:%02d]", (info->tm_mon + 1),
           info->tm_mday, (info->tm_year + 1900), info->tm_hour, info->tm_min,
           info->tm_sec);
-}
-
-void generateMsg(char *msg) {
-  // use to refactor code below
 }
 
 void debug(Logger *logger, char *const format, ...) {
@@ -58,37 +54,38 @@ void debug(Logger *logger, char *const format, ...) {
     return;
   }
   char logformat[MSG_SIZE];
-  getDateTime(logger->dtFormat, logformat);
-  strcat(logformat, "[DEBUG] ");
+  char dtStr[strlen(logger->dtFormat)];
+  getDateTime(logger->dtFormat, dtStr);
 
   va_list args;
   va_start(args, format);
-  strcat(logformat, format);
-  strcat(logformat, "\n");
-  vfprintf(stdout, logformat, args);
+  vsprintf(logformat, format, args);
   va_end(args);
+
+  fprintf(logger->logFile, "[DEBUG] %s %s\n", dtStr, logformat);
 }
 
+void printLog(char *msg) {
+  printf("%s", "\033[0;31m");
+  printf("%s\n", msg);
+  printf("%s", "\033[0m");
+}
 
 void critical(Logger *logger, char *const format, ...) {
-  if (logger->level > 20) {
+  if (logger->level > 60) {
     return;
   }
   char logformat[MSG_SIZE];
-  getDateTime(logger->dtFormat, logformat);
-  strcat(logformat, "[CRIT] ");
+  char dtStr[strlen(logger->dtFormat)];
+  getDateTime(logger->dtFormat, dtStr);
 
   va_list args;
   va_start(args, format);
-  strcat(logformat, format);
-  strcat(logformat, "\n");
-  vfprintf(stdout, logformat, args);
-
-  // printPrompt();
-  printf("%s", "\033[0;31m");
-  vfprintf(stdout, format, args);
-  printf("%s", "\033[0m");
+  vsprintf(logformat, format, args);
   va_end(args);
+
+  fprintf(logger->logFile, "[CRIT] %s %s\n", dtStr, logformat);
+  printLog(logformat);
 }
 
 #ifdef LOGGING_TESTING
@@ -98,8 +95,8 @@ int main() {
   Logger *logger = getLogger(DEBUG);
   initLogSession(logger);
   debug(logger, "testing out debug");
-  debug(logger, "coolest number %d", 420);
-  debug(logger, "some random string %s", "foobarbaz");
+  critical(logger, "coolest number %d", 420);
+  critical(logger, "some random string %s", "foobarbaz");
   killLogSession(logger);
 }
 #endif
