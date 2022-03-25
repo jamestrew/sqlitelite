@@ -6,8 +6,12 @@
 #include "input_handler.h"
 #include "tables.h"
 #include "cursor.h"
+#include "dev/logging.h"
+
+extern Logger *logger;
 
 void readInput(InputBuffer *const inputBuffer) {
+  debug(logger, "readINput()");
   ssize_t bytesRead =
       getline(&(inputBuffer->buffer), &(inputBuffer->buffer_length), stdin);
 
@@ -20,6 +24,7 @@ void readInput(InputBuffer *const inputBuffer) {
 }
 
 InputBuffer *newInputBuffer() {
+  debug(logger, "newInputBuffer()");
   InputBuffer *inputBuffer = malloc(sizeof(InputBuffer));
   if (inputBuffer != NULL) {
     inputBuffer->buffer = NULL;
@@ -32,20 +37,24 @@ InputBuffer *newInputBuffer() {
 void printPrompt() { printf("%s", "db > "); }
 
 void closeInputBuffer(InputBuffer *const inputBuffer) {
+  debug(logger, "closeInputBuffer()");
   free(inputBuffer->buffer);
   free(inputBuffer);
 }
 
 MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer, Table *table) {
+  debug(logger, "doMetaCommand()");
   if (strcmp(inputBuffer->buffer, ".exit") == 0) {
     dbClose(table);
+    killLogSession(logger);
     exit(EXIT_SUCCESS);
   } else {
     return META_COMMAND_UNRECOGNIZED;
   }
 }
 
-PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement) {
+PrepareResult prepareInsert(InputBuffer *inputBuffer, Statement *statement) {
+  debug(logger, "prepareInsert()");
   statement->type = STATEMENT_INSERT;
 
   char *keyword = strtok(inputBuffer->buffer, " ");
@@ -70,8 +79,9 @@ PrepareResult prepare_insert(InputBuffer *inputBuffer, Statement *statement) {
 }
 
 PrepareResult prepareStatement(InputBuffer *inputBuffer, Statement *statement) {
+  debug(logger, "prepareStatement()");
   if (strncmp(inputBuffer->buffer, "insert", 6) == 0) {
-    return prepare_insert(inputBuffer, statement);
+    return prepareInsert(inputBuffer, statement);
   } else if (strncmp(inputBuffer->buffer, "select", 6) == 0) {
     statement->type = STATEMENT_SELECT;
     return PREPARE_SUCCESS;
@@ -80,6 +90,7 @@ PrepareResult prepareStatement(InputBuffer *inputBuffer, Statement *statement) {
 }
 
 void executeStatement(Statement *const statement, Table *const table) {
+  debug(logger, "executeStatement()");
   ExecuteResult result;
   switch (statement->type) {
   case (STATEMENT_INSERT):
@@ -101,6 +112,7 @@ void executeStatement(Statement *const statement, Table *const table) {
 }
 
 ExecuteResult executeInsert(Statement *statement, Table *const table) {
+  debug(logger, "executeInsert()");
   if (table->numRows >= TABLE_MAX_ROWS) {
     return EXECUTE_TABLE_FULL;
   }
@@ -114,6 +126,7 @@ ExecuteResult executeInsert(Statement *statement, Table *const table) {
 }
 
 ExecuteResult executeSelect(Statement *statement, Table *const table) {
+  debug(logger, "executeSelect()");
   Row row;
   Cursor *cursor = tableStart(table);
   while (!cursor->endOfTable) {

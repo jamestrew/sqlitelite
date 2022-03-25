@@ -49,6 +49,10 @@ void getDateTime(char *format, char *dtStr) {
           info->tm_sec);
 }
 
+void printLog(char *msg, char *msgColor) {
+  printf("%s%s%s\n", msgColor, msg, MSG_COLOR_NONE);
+}
+
 void debug(Logger *logger, char *const format, ...) {
   if (logger->level > 20) {
     return;
@@ -65,10 +69,21 @@ void debug(Logger *logger, char *const format, ...) {
   fprintf(logger->logFile, "[DEBUG] %s %s\n", dtStr, logformat);
 }
 
-void printLog(char *msg) {
-  printf("%s", "\033[0;31m");
-  printf("%s\n", msg);
-  printf("%s", "\033[0m");
+void warn(Logger *logger, char *const format, ...) {
+  if (logger->level > 40) {
+    return;
+  }
+  char logformat[MSG_SIZE];
+  char dtStr[strlen(logger->dtFormat)];
+  getDateTime(logger->dtFormat, dtStr);
+
+  va_list args;
+  va_start(args, format);
+  vsprintf(logformat, format, args);
+  va_end(args);
+
+  fprintf(logger->logFile, "[CRIT] %s %s\n", dtStr, logformat);
+  printLog(logformat, MSG_COLOR_NONE);
 }
 
 void critical(Logger *logger, char *const format, ...) {
@@ -85,7 +100,7 @@ void critical(Logger *logger, char *const format, ...) {
   va_end(args);
 
   fprintf(logger->logFile, "[CRIT] %s %s\n", dtStr, logformat);
-  printLog(logformat);
+  printLog(logformat, MSG_COLOR_RED);
 }
 
 #ifdef LOGGING_TESTING
@@ -97,6 +112,7 @@ int main() {
   debug(logger, "testing out debug");
   critical(logger, "coolest number %d", 420);
   critical(logger, "some random string %s", "foobarbaz");
+  warn(logger, "this is a warning");
   killLogSession(logger);
 }
 #endif
