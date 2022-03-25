@@ -2,14 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "dev/logging.h"
 #include "input_handler.h"
 #include "tables.h"
+
+Logger *logger;
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     puts("Must supply a database filename.");
     exit(EXIT_FAILURE);
   }
+  int loglevel = WARN;
+  if (argc >= 3) {
+    loglevel = atol(argv[2]);
+  }
+  logger = getLogger(loglevel); // TODO: get from flag
+  initLogSession(logger);
 
   char *filename = argv[1];
   InputBuffer *inputBuffer = newInputBuffer();

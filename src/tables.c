@@ -6,6 +6,9 @@
 
 #include "pager.h"
 #include "tables.h"
+#include "dev/logging.h"
+
+extern Logger *logger;
 
 const uint32_t ID_SIZE = SIZE_OF_ATTR(Row, id);
 const uint32_t USERNAME_SIZE = SIZE_OF_ATTR(Row, username);
@@ -20,18 +23,21 @@ const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 void serializeRow(Row *source, void *destination) {
+  debug(logger, "serializeRow()");
   memcpy(destination + ID_OFFSET, &(source->id), ID_SIZE);
   memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
   memcpy(destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
 }
 
 void deserializeRow(void *source, Row *destination) {
+  debug(logger, "deserializeRow()");
   memcpy(&(destination->id), source + ID_OFFSET, ID_SIZE);
   memcpy(&(destination->username), source + USERNAME_OFFSET, USERNAME_SIZE);
   memcpy(&(destination->email), source + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
 Table *dbOpen(const char *filename) {
+  debug(logger, "dbOpen()");
   Pager *pager = pagerOpen(filename);
   Table *table = malloc(sizeof(Table));
 
@@ -43,6 +49,7 @@ Table *dbOpen(const char *filename) {
 }
 
 void dbClose(Table *table) {
+  debug(logger, "dbClose()");
   Pager *pager = table->pager;
   uint32_t numFullPages = table->numRows / ROWS_PER_PAGE;
 
@@ -81,6 +88,7 @@ void dbClose(Table *table) {
 }
 
 void freeTable(Table *table) {
+  debug(logger, "freeTable()");
   for (uint32_t i = 0; i < TABLE_MAX_PAGES; ++i) {
     free(table->pager->pages[i]);
   }

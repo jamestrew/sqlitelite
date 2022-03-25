@@ -3,8 +3,12 @@
 
 #include "cursor.h"
 #include "tables.h"
+#include "dev/logging.h"
+
+extern Logger *logger;
 
 Cursor *tableStart(Table *table) {
+  debug(logger, "tableStart()");
   Cursor *cursor = malloc(sizeof(Cursor));
   if (cursor != NULL) {
     cursor->table = table;
@@ -15,6 +19,7 @@ Cursor *tableStart(Table *table) {
 }
 
 Cursor *tableEnd(Table *table) {
+  debug(logger, "tableEnd()");
   Cursor *cursor = malloc(sizeof(Cursor));
   if (cursor != NULL) {
     cursor->table = table;
@@ -25,6 +30,7 @@ Cursor *tableEnd(Table *table) {
 }
 
 void *cursorValue(Cursor *cursor) {
+  debug(logger, "cursorValue()");
   uint32_t pageNum = cursor->rowNum / ROWS_PER_PAGE;
   void *page = getPage(cursor->table->pager, pageNum);
   if (page == NULL) {
@@ -36,6 +42,7 @@ void *cursorValue(Cursor *cursor) {
 }
 
 void cursorAdvance(Cursor *cursor) {
+  debug(logger, "cursorAdvance()");
   cursor->rowNum++;
   if (cursor->rowNum >= cursor->table->numRows) {
     cursor->endOfTable = true;

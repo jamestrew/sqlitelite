@@ -6,8 +6,12 @@
 #include <unistd.h>
 
 #include "pager.h"
+#include "dev/logging.h"
+
+extern Logger *logger;
 
 Pager *pagerOpen(const char *filename) {
+  debug(logger, "pagerOpen()");
   int fd = open(filename, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
 
   if (fd == -1) {
@@ -28,6 +32,7 @@ Pager *pagerOpen(const char *filename) {
 }
 
 void *getPage(Pager *pager, uint32_t pageNum) {
+  debug(logger, "getPage()");
   if (pageNum > TABLE_MAX_PAGES) {
     printf("Tried to fetch page number out of bounds. %d\n", TABLE_MAX_PAGES);
     exit(EXIT_FAILURE);
@@ -55,6 +60,7 @@ void *getPage(Pager *pager, uint32_t pageNum) {
 }
 
 void pagerFlush(Pager *pager, uint32_t pageNum, uint32_t size) {
+  debug(logger, "pagerFlush()");
   if (pager->pages[pageNum] == NULL) {
     puts("Tried to flush null page");
     exit(EXIT_FAILURE);
