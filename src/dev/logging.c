@@ -7,7 +7,7 @@
 
 #include "logging.h"
 
-Logger *getLogger(logLevel level) {
+Logger *getLogger(LogLevel level) {
   Logger *logger = malloc(sizeof(Logger));
 
   if (logger == NULL) {

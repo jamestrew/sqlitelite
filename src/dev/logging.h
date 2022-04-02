@@ -14,7 +14,7 @@ typedef enum {
   WARN = 40,
   ERROR = 50,
   CRITICAL = 60
-} logLevel;
+} LogLevel;
 
 typedef struct {
   int level;
@@ -23,7 +23,7 @@ typedef struct {
   FILE *logFile;
 } Logger;
 
-Logger *getLogger(logLevel level);
+Logger *getLogger(LogLevel level);
 void initLogSession(Logger *logger);
 void killLogSession(Logger *logger);
 
