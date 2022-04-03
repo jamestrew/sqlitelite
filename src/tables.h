@@ -9,14 +9,6 @@
 #define COLUMN_USERNAME_SIZE 32
 #define COLUMN_EMAIL_SIZE 255
 
-typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
-
-typedef struct {
-  uint32_t id;
-  char username[COLUMN_USERNAME_SIZE + 1];
-  char email[COLUMN_EMAIL_SIZE + 1];
-} Row;
-
 /*
   table: users
 
@@ -27,16 +19,25 @@ typedef struct {
    email     |    255           |   36
    total     |    291           |   --
 */
-extern const uint32_t ID_SIZE;
-extern const uint32_t USERNAME_SIZE;
-extern const uint32_t EMAIL_SIZE;
-extern const uint32_t ID_OFFSET;
-extern const uint32_t USERNAME_OFFSET;
-extern const uint32_t EMAIL_OFFSET;
-extern const uint32_t ROW_SIZE;
+#define ID_SIZE 4
+#define USERNAME_SIZE (COLUMN_USERNAME_SIZE + 1)
+#define EMAIL_SIZE (COLUMN_EMAIL_SIZE + 1)
+#define ID_OFFSET 0
+#define USERNAME_OFFSET (ID_SIZE + ID_OFFSET)
+#define EMAIL_OFFSET (USERNAME_OFFSET + USERNAME_SIZE)
+#define ROW_SIZE (ID_SIZE + USERNAME_SIZE + EMAIL_SIZE)
 
-extern const uint32_t ROWS_PER_PAGE;
-extern const uint32_t TABLE_MAX_ROWS;
+#define ROWS_PER_PAGE (PAGE_SIZE / ROW_SIZE)
+#define TABLE_MAX_ROWS (ROWS_PER_PAGE * TABLE_MAX_PAGES)
+
+typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
+
+typedef struct {
+  uint32_t id;
+  char username[COLUMN_USERNAME_SIZE + 1];
+  char email[COLUMN_EMAIL_SIZE + 1];
+} Row;
+
 
 typedef struct {
   uint32_t numRows;
