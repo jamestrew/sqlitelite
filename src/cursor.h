@@ -8,7 +8,8 @@
 
 typedef struct {
   Table *table;
-  uint32_t rowNum;
+  uint32_t pageNum;
+  uint32_t cellNum;
   bool endOfTable;
 } Cursor;
 
@@ -18,7 +19,8 @@ Cursor *tableEnd(Table *table);
 void *cursorValue(Cursor *cursor);
 void cursorAdvance(Cursor *cursor);
 
-
+// TODO: belong here?
+void leafNodeInsert(Cursor *cursor, uint32_t key, Row *value);
 
 #endif
 

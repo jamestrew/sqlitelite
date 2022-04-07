@@ -27,9 +27,6 @@
 #define EMAIL_OFFSET (USERNAME_OFFSET + USERNAME_SIZE)
 #define ROW_SIZE (ID_SIZE + USERNAME_SIZE + EMAIL_SIZE)
 
-#define ROWS_PER_PAGE (PAGE_SIZE / ROW_SIZE)
-#define TABLE_MAX_ROWS (ROWS_PER_PAGE * TABLE_MAX_PAGES)
-
 typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
 
 typedef struct {
@@ -40,7 +37,7 @@ typedef struct {
 
 
 typedef struct {
-  uint32_t numRows;
+  uint32_t rootPageNum;
   Pager *pager;
 } Table;
 
