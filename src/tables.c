@@ -6,6 +6,7 @@
 
 #include "pager.h"
 #include "tables.h"
+#include "btree.h"
 #include "dev/logging.h"
 
 extern Logger *logger;
@@ -30,8 +31,13 @@ Table *dbOpen(const char *filename) {
   Table *table = malloc(sizeof(Table));
 
   if (table != NULL) {
-    table->numRows = pager->fileLength / ROW_SIZE;
+    table->rootPageNum = 0;
     table->pager = pager;
+  }
+  if (pager->numPages == 0) {
+    // new db file
+    void *rootNode = getPage(pager, 0);
+    initializeLeafNode(rootNode);
   }
   return table;
 }
@@ -39,24 +45,14 @@ Table *dbOpen(const char *filename) {
 void dbClose(Table *table) {
   debug(logger, "dbClose()");
   Pager *pager = table->pager;
-  uint32_t numFullPages = table->numRows / ROWS_PER_PAGE;
 
-  for (uint32_t i = 0; i < numFullPages; ++i) {
+  for (uint32_t i = 0; i < pager->numPages; ++i) {
     if (pager->pages[i] == NULL) {
       continue;
     }
-    pagerFlush(pager, i, PAGE_SIZE);
+    pagerFlush(pager, i);
     free(pager->pages[i]);
     pager->pages[i] = NULL;
-  }
-
-  uint32_t numAdditionalRows = table->numRows % ROWS_PER_PAGE;
-  if (numAdditionalRows > 0) {
-    if (pager->pages[numFullPages] != NULL) {
-      pagerFlush(pager, numFullPages, numAdditionalRows * ROW_SIZE);
-      free(pager->pages[numFullPages]);
-      pager->pages[numFullPages] = NULL;
-    }
   }
 
   if (close(pager->fileDescriptor) == -1) {

@@ -6,7 +6,10 @@
 #include "input_handler.h"
 #include "tables.h"
 #include "cursor.h"
+#include "btree.h"
+
 #include "dev/logging.h"
+#include "dev/testing.h"
 
 extern Logger *logger;
 
@@ -48,6 +51,12 @@ MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer, Table *table) {
     dbClose(table);
     killLogSession(logger);
     exit(EXIT_SUCCESS);
+  } else if (strcmp(inputBuffer->buffer, ".constants") == 0) {
+    printConstants(); // TODO: add test
+    return META_COMMAND_SUCCES;
+  } else if (strcmp(inputBuffer->buffer, ".btree") == 0) {
+    printLeafNode(getPage(table->pager, 0)); // TODO: add test
+    return META_COMMAND_SUCCES;
   } else {
     return META_COMMAND_UNRECOGNIZED;
   }
@@ -113,14 +122,14 @@ void executeStatement(Statement *const statement, Table *const table) {
 
 ExecuteResult executeInsert(Statement *statement, Table *const table) {
   debug(logger, "executeInsert()");
-  if (table->numRows >= TABLE_MAX_ROWS) {
+  void *node = getPage(table->pager, table->rootPageNum);
+  if (*leafNodeNumCells(node) >= LEAF_NODE_MAX_CELLS) {
     return EXECUTE_TABLE_FULL;
   }
 
   Row *rowInsert = &(statement->insertRow);
   Cursor *cursor = tableEnd(table);
-  serializeRow(rowInsert, cursorValue(cursor));
-  table->numRows++;
+  leafNodeInsert(cursor, rowInsert->id, rowInsert);
   free(cursor);
   return EXECUTE_SUCCESS;
 }
