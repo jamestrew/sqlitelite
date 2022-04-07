@@ -52,10 +52,10 @@ MetaCommandResult doMetaCommand(InputBuffer *const inputBuffer, Table *table) {
     killLogSession(logger);
     exit(EXIT_SUCCESS);
   } else if (strcmp(inputBuffer->buffer, ".constants") == 0) {
-    printConstants(); // TODO: add test
+    printConstants();
     return META_COMMAND_SUCCES;
   } else if (strcmp(inputBuffer->buffer, ".btree") == 0) {
-    printLeafNode(getPage(table->pager, 0)); // TODO: add test
+    printLeafNode(getPage(table->pager, 0));
     return META_COMMAND_SUCCES;
   } else {
     return META_COMMAND_UNRECOGNIZED;
