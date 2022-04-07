@@ -22,8 +22,8 @@ def test_exit():
 
 def test_table_full_error():
     cmds = []
-    for _ in range(1401):
-        cmds.append("insert 1 jt jt@gmail.com")
+    for idx in range(1, 1401):
+        cmds.append(f"insert {idx} jt jt@gmail.com")
     result = cli.run_cmds(cmds)
     assert result.pop() == "db > Error: Table full."
 
@@ -68,4 +68,36 @@ def test_data_persistence():
     assert result == [
         "db > \t1\tjt\tjt@gmail.com",
         "Executed.",
+    ]
+
+
+def test_print_constants():
+    result = cli.run_cmds([".constants", ".exit"])
+    assert result == [
+        "db > Constants:",
+        "ROW_SIZE: 293",
+        "COMMON_NODE_HEADER_SIZE: 6",
+        "LEAF_NODE_HEADER_SIZE: 10",
+        "LEAF_NODE_CELL_SIZE: 297",
+        "LEAF_NODE_SPACE_FOR_CELLS: 4086",
+        "LEAF_NODE_MAX_CELLS: 13",
+    ]
+
+
+def test_print_btree_node():
+    cmds = []
+    for id in [3, 1, 2]:
+        cmds.append(f"insert {id} user{id} person{id}@example.com")
+    cmds.extend([".btree", ".exit"])
+
+    result = cli.run_cmds(cmds)
+    assert result == [
+        "db > Executed.",
+        "db > Executed.",
+        "db > Executed.",
+        "db > Tree:",
+        "leaf (size 3)",
+        " - 0 : 3",
+        " - 1 : 1",
+        " - 2 : 2",
     ]
