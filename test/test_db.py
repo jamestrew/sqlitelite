@@ -97,7 +97,25 @@ def test_print_btree_node():
         "db > Executed.",
         "db > Tree:",
         "leaf (size 3)",
-        " - 0 : 3",
-        " - 1 : 1",
-        " - 2 : 2",
+        " - 0 : 1",
+        " - 1 : 2",
+        " - 2 : 3",
+    ]
+
+
+def test_duplicate_id_error():
+    result = cli.run_cmds(
+        [
+            "insert 1 user1 user1@email.com",
+            "insert 1 user1 user1@email.com",
+            "select",
+            ".exit",
+        ]
+    )
+
+    assert result == [
+        "db > Executed.",
+        "db > Error: Duplicate key.",
+        "db > \t1\tuser1\tuser1@email.com",
+        "Executed.",
     ]

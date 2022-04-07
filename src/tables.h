@@ -1,8 +1,8 @@
 #ifndef JT_TABLES
 #define JT_TABLES
 
-#include <stdint.h>
 #include "pager.h"
+#include <stdint.h>
 
 #define SIZE_OF_ATTR(struct, attr) sizeof(((struct *)0)->attr)
 
@@ -27,14 +27,17 @@
 #define EMAIL_OFFSET (USERNAME_OFFSET + USERNAME_SIZE)
 #define ROW_SIZE (ID_SIZE + USERNAME_SIZE + EMAIL_SIZE)
 
-typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
+typedef enum {
+  EXECUTE_SUCCESS,
+  EXECUTE_DUPLICATE_KEY,
+  EXECUTE_TABLE_FULL
+} ExecuteResult;
 
 typedef struct {
   uint32_t id;
   char username[COLUMN_USERNAME_SIZE + 1];
   char email[COLUMN_EMAIL_SIZE + 1];
 } Row;
-
 
 typedef struct {
   uint32_t rootPageNum;
