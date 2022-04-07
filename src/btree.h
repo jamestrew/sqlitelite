@@ -38,5 +38,6 @@ void *leafNodeCell(void *node, uint32_t cellNum);
 uint32_t *leafNodeKey(void *node, uint32_t cellNum);
 void *leafNodeValue(void *node, uint32_t cellNum);
 void initializeLeafNode(void *node);
+NodeType getNodeType(void *node);
 
 #endif

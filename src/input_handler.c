@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "btree.h"
+#include "cursor.h"
 #include "input_handler.h"
 #include "tables.h"
-#include "cursor.h"
-#include "btree.h"
 
 #include "dev/logging.h"
 #include "dev/testing.h"
@@ -114,6 +114,9 @@ void executeStatement(Statement *const statement, Table *const table) {
   case (EXECUTE_SUCCESS):
     puts("Executed.");
     break;
+  case (EXECUTE_DUPLICATE_KEY):
+    puts("Error: Duplicate key.");
+    break;
   case (EXECUTE_TABLE_FULL):
     puts("Error: Table full.");
     break;
@@ -123,12 +126,17 @@ void executeStatement(Statement *const statement, Table *const table) {
 ExecuteResult executeInsert(Statement *statement, Table *const table) {
   debug(logger, "executeInsert()");
   void *node = getPage(table->pager, table->rootPageNum);
-  if (*leafNodeNumCells(node) >= LEAF_NODE_MAX_CELLS) {
+  uint32_t numCells = *leafNodeNumCells(node);
+  if (numCells >= LEAF_NODE_MAX_CELLS) {
     return EXECUTE_TABLE_FULL;
   }
 
   Row *rowInsert = &(statement->insertRow);
-  Cursor *cursor = tableEnd(table);
+  Cursor *cursor = tableFind(table, rowInsert->id);
+  if (cursor->cellNum < numCells &&
+      *leafNodeKey(node, cursor->cellNum) == rowInsert->id) {
+    return EXECUTE_DUPLICATE_KEY;
+  }
   leafNodeInsert(cursor, rowInsert->id, rowInsert);
   free(cursor);
   return EXECUTE_SUCCESS;

@@ -23,18 +23,15 @@ Cursor *tableStart(Table *table) {
   return cursor;
 }
 
-Cursor *tableEnd(Table *table) {
-  debug(logger, "tableEnd()");
-  Cursor *cursor = malloc(sizeof(Cursor));
-  if (cursor != NULL) {
-    cursor->table = table;
-    cursor->pageNum = table->rootPageNum;
-
-    void *rootNode = getPage(table->pager, cursor->pageNum);
-    cursor->cellNum = *leafNodeNumCells(rootNode);
-    cursor->endOfTable = true;
+Cursor *tableFind(Table * table, uint32_t key) {
+  debug(logger, "tableFind()");
+  void *rootNode = getPage(table->pager, table->rootPageNum);
+  if (getNodeType(rootNode) == NODE_LEAF) {
+    return leafNodeFind(table, key);
+  } else {
+    critical(logger, "TO BE IMPLEMENTED: searching internal node");
+    exit(EXIT_FAILURE);
   }
-  return cursor;
 }
 
 void *cursorValue(Cursor *cursor) {
@@ -53,6 +50,7 @@ void cursorAdvance(Cursor *cursor) {
 }
 
 void leafNodeInsert(Cursor *cursor, uint32_t key, Row *value) {
+  debug(logger, "leafNodeInsert()");
   void *node = getPage(cursor->table->pager, cursor->pageNum);
 
   uint32_t numCells = *leafNodeNumCells(node);
@@ -71,4 +69,33 @@ void leafNodeInsert(Cursor *cursor, uint32_t key, Row *value) {
   *leafNodeNumCells(node) += 1;
   *leafNodeKey(node, cursor->cellNum) = key;
   serializeRow(value, leafNodeValue(node, cursor->cellNum));
+}
+
+Cursor *leafNodeFind(Table *table, uint32_t key) {
+  debug(logger, "leafNodeFind()");
+  void *node = getPage(table->pager, table->rootPageNum);
+  uint32_t numCells = *leafNodeNumCells(node);
+
+  Cursor *cursor = malloc(sizeof(Cursor));
+  cursor->table = table;
+  cursor->pageNum = table->rootPageNum;
+
+  uint32_t minIndex = 0;
+  uint32_t maxIndexPlusOne = numCells;
+  while (maxIndexPlusOne != minIndex) {
+    uint32_t index = (minIndex + maxIndexPlusOne) / 2;
+    uint32_t indexKey = *leafNodeKey(node, index);
+    if (key == indexKey) {
+      cursor->cellNum = index;
+      return cursor;
+    }
+    if (key < indexKey) {
+      maxIndexPlusOne = index;
+    } else {
+      minIndex = index + 1;
+    }
+  }
+
+  cursor->cellNum = minIndex;
+  return cursor;
 }

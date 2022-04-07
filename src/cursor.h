@@ -14,13 +14,14 @@ typedef struct {
 } Cursor;
 
 Cursor *tableStart(Table *table);
-Cursor *tableEnd(Table *table);
+Cursor *tableFind(Table *table, uint32_t key);
 
 void *cursorValue(Cursor *cursor);
 void cursorAdvance(Cursor *cursor);
 
 // TODO: belong here?
 void leafNodeInsert(Cursor *cursor, uint32_t key, Row *value);
+Cursor *leafNodeFind(Table *table, uint32_t key);
 
 #endif
 
