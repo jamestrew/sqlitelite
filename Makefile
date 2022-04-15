@@ -1,27 +1,27 @@
-.PHONY: all
+.PHONY: all clean wipe test
+
+SRCS := $(shell fd --type f -e c)
+
 all: db
 	./db mydb.db
 
-db: src/db.c src/input_handler.c src/tables.c src/pager.c src/dev/logging.c src/cursor.c src/btree.c src/dev/testing.c
+db: ${SRCS}
 	gcc -o $@ $^
 
 # can debug by attaching gdb to the process `sudo gdb -p xxx` where xxx is the process num
 # find process id with `ps aux | grep mydb` or something similar
-debug: src/db.c src/input_handler.c src/tables.c src/pager.c src/dev/logging.c src/cursor.c src/btree.c src/dev/testing.c
+debug: ${SRCS}
 	gcc -o $@ $^ -g
 
 %.o: %.c
 	gcc -c $< -o $@
 
-.PHONY: test
-test:
+test: db
 	pipenv run pytest
 
-.PHONY: clean
 clean:
 	rm -f db debug
 
-.PHONY: wipe
 wipe:
 	@echo "Wiping db data and logs..."
 	rm -f mydb.db
